@@ -1,4 +1,5 @@
 import os
+import logger.log as log
 
 
 def main():
@@ -6,6 +7,7 @@ def main():
     file_names = {}
 
     parse_directory(path, file_names)
+
 
 def parse_directory(path, file_names):
     if not os.path.exists(path):
@@ -18,6 +20,7 @@ def parse_directory(path, file_names):
             print(file, "extension:", extension)
             if file in file_names:
                 print(file, " - already exists [DUPLICATE]")
+                log.Error(file)
             else:
                 file_names[file] = os.path.join(path, file)
         else:
@@ -26,6 +29,7 @@ def parse_directory(path, file_names):
             # print("\n")
 
     print("\nFinished parsing ", os.path.join(path))
+
 
 if __name__ == "__main__":
     main()
