@@ -1,8 +1,14 @@
 from . import colour_printer as printer
+from .log_levels import LogLevel
+
+DefaultLogLevel: LogLevel = LogLevel.INFO
+
+CurrentLogLevel: LogLevel = DefaultLogLevel
 
 
-def set_log_level(log_level: str):
-    printer.set_log_level(log_level)
+def set_log_level(log_level: LogLevel):
+    global CurrentLogLevel
+    CurrentLogLevel = log_level
 
 
 def format_message(*args) -> str:
@@ -10,20 +16,25 @@ def format_message(*args) -> str:
 
 
 def warning(*args):
-    printer.print_yellow(format_message(*args))
+    if CurrentLogLevel <= LogLevel.WARNING:
+        printer.print_yellow(format_message(*args))
 
 
 def error(*args):
-    printer.print_red(format_message(*args))
+    if CurrentLogLevel <= LogLevel.ERROR:
+        printer.print_red(format_message(*args))
 
 
 def info(*args):
-    printer.print_default(format_message(*args))
+    if CurrentLogLevel <= LogLevel.INFO:
+        printer.print_default(format_message(*args))
 
 
 def debug(*args):
-    printer.print_default(format_message(*args))
+    if CurrentLogLevel <= LogLevel.DEBUG:
+        printer.print_default(format_message(*args))
 
 
 def critical(*args):
-    printer.print_red(format_message(*args))
+    if CurrentLogLevel <= LogLevel.CRITICAL:
+        printer.print_red(format_message(*args))
