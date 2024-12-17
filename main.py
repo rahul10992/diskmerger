@@ -1,7 +1,7 @@
 import os
 from logger import logger as log
+from disk_operations import disk_detector as disk
 
-local_drive_name = {"Macintosh HD"}
 directory_to_ignore = {".Spotlight-V100"}
 files_to_ignore = {".DS_Store"}
 
@@ -12,14 +12,7 @@ def main():
     duplicate_file_count = 0
     skipped_file_count = 0
 
-    # parse_directory(path, file_names)
-    drives = list_drives()
-    print("Detected external drives:")
-    for drive in drives:
-        if drive in local_drive_name:
-            continue
-        log.debug("Navigating drive {}".format(drive))
-        drive_path = f"/Volumes/{drive}"
+    for drive_path in disk.get_external_drive_paths():
         parse_directory(
             drive_path, file_names, duplicate_file_count, skipped_file_count
         )
@@ -66,18 +59,6 @@ def parse_directory(path, file_names, duplicate_file_count, skipped_file_count):
                 skipped_file_count += 1
 
     # log.debug("\nFinished parsing ", os.path.join(path))
-
-
-def list_drives():
-    # This command lists all volumes in /Volumes, which is where macOS mounts external drives
-    return next(os.walk("/Volumes"))[1]
-
-
-def count_files_in_drive(drive_path):
-    file_count = 0
-    for root, dirs, files in os.walk(drive_path):
-        file_count += len(files)
-    return file_count
 
 
 if __name__ == "__main__":
