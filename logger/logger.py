@@ -1,6 +1,10 @@
 from . import colour_printer as printer
 
 
+def set_log_level(log_level: str):
+    printer.set_log_level(log_level)
+
+
 def format_message(*args) -> str:
     return " ".join(map(str, args))
 
