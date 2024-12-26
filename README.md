@@ -11,10 +11,17 @@ To consolidate info from all the hard drives I have
    4. Check for equality of each file. In case the name is the same. But the file is diff. eg: s01e02
    5. Have some other tools to allow for all images/music in a folder to be routed to a specific location, sorted by type. 
    6. learn python
-4. Start with:
-   1. Get file names. 
-   2. Check for uniqueness between disks and if equal, check metadata, and if reqd, hash of file.
 5. More ideas:
    1. Provide merging of files from diff locations with a particular file type - merge all the 2000000 downloaded images
       a. Provide a choice for which folders - you dont want the travel images merged with all the memes.
    2. 
+
+
+### Things done so far:
+1. Got the list of files from all the drives and checked for duplicates.
+2. Logging infra for console logs
+3. Detect external drives
+
+### Next Steps:
+1. First check directory for duplicates and then check the files - so if the whole folder is the same, delete the folder.
+2. Check metadata of the files to see if they are the same name - choose larger file in case of conflict?
