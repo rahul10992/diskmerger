@@ -6,7 +6,6 @@ from logger import logger as log
 from logger.log_levels import LogLevel
 import disk_operations.disk_detector as disk
 
-directory_to_ignore = {".Spotlight-V100"}
 files_to_ignore = {".DS_Store"}
 
 
@@ -50,7 +49,19 @@ def parse_directory(path, file_names, duplicate_file_count, skipped_file_count):
 
     files = os.listdir(path)
     for file in files:
-        if not os.path.isdir(os.path.join(path, file)):
+        if os.path.isdir(os.path.join(path, file)):
+            log.debug("\nParsing Directory: ", os.path.join(path, file), "\n")
+            if not file.startswith(".") and file not in files_to_ignore:
+                parse_directory(
+                    os.path.join(path, file),
+                    file_names,
+                    duplicate_file_count,
+                    skipped_file_count,
+                )
+            else:
+                log.warning("Skipping {} because it seems to be hidden".format(file))
+                skipped_file_count += 1
+        else:
             extension = file.split(".")[-1]
             log.debug(file, "extension:", extension)
             if file in file_names:
@@ -66,18 +77,6 @@ def parse_directory(path, file_names, duplicate_file_count, skipped_file_count):
             else:
                 log.debug("Adding file: ", file)
                 file_names[file] = os.path.join(path, file)
-        else:
-            log.debug("\nParsing Directory: ", os.path.join(path, file), "\n")
-            if not file.startswith("."):
-                parse_directory(
-                    os.path.join(path, file),
-                    file_names,
-                    duplicate_file_count,
-                    skipped_file_count,
-                )
-            else:
-                log.warning("Skipping {} because it seems to be hidden".format(file))
-                skipped_file_count += 1
 
     log.debug("\nFinished parsing ", os.path.join(path))
 
