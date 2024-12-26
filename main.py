@@ -1,14 +1,26 @@
 import os
+import argparse
 
 import logger.logger
 from logger import logger as log
 from logger.log_levels import LogLevel
+import disk_operations.disk_detector as disk
 
 directory_to_ignore = {".Spotlight-V100"}
 files_to_ignore = {".DS_Store"}
 
 
 def main():
+    parser = argparse.ArgumentParser(description="File parser")
+    parser.add_argument(
+        "--mode",
+        choices=["test", "real"],
+        default="test",
+        required=True,
+        help="Mode of operation",
+    )
+    args = parser.parse_args()
+
     path = "/Users/rahul/Desktop/repo/RiderProjects/Sandbox/Sandbox/obj"
     file_names = {}
     duplicate_file_count = 0
@@ -16,13 +28,14 @@ def main():
 
     logger.logger.set_log_level(log_level=LogLevel.INFO)
 
-    # for drive_path in disk.get_external_drive_paths():
-    #     parse_directory(
-    #         drive_path, file_names, duplicate_file_count, skipped_file_count
-    #     )
-
-    # Testing:
-    parse_directory(path, file_names, duplicate_file_count, skipped_file_count)
+    if args.mode == "real":
+        for drive_path in disk.get_external_drive_paths():
+            parse_directory(
+                drive_path, file_names, duplicate_file_count, skipped_file_count
+            )
+    else:
+        # Testing mode
+        parse_directory(path, file_names, duplicate_file_count, skipped_file_count)
 
     print(
         "Found {} files".format(len(file_names)),
