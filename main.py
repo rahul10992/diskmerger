@@ -11,6 +11,10 @@ files_to_ignore = {".DS_Store"}
 
 
 def main():
+    logger.logger.use_timestamped_log_file(False)
+    logger.logger.initialise_log_file()
+    logger.logger.set_log_level(log_level=LogLevel.INFO)
+
     parser = argparse.ArgumentParser(description="File parser")
     parser.add_argument(
         "--mode",
@@ -25,8 +29,6 @@ def main():
     file_names = {}
     duplicate_file_count = 0
     skipped_file_count = 0
-
-    logger.logger.set_log_level(log_level=LogLevel.INFO)
 
     if args.mode == "real":
         for drive_path in disk.get_external_drive_paths():
