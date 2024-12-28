@@ -32,7 +32,7 @@ def main():
 
     else:
         # Testing mode
-        temp = cleanup.DiskCleanup(path)
+        temp = cleanup.DiskCleanup(path, dry_run=False)
         temp.get_status_report()
         temp.cleanup()
         temp.get_status_report()

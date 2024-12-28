@@ -1,6 +1,7 @@
 from disk_operations.directory import Directory
 from logger import logger as log
 
+import shutil
 import os
 
 FILES_TO_IGNORE = {".DS_Store"}
@@ -24,7 +25,7 @@ class DiskCleanup:
         if not os.path.exists(path) or not os.path.isdir(path):
             raise FileNotFoundError("Directory ", path, " Does not exist")
 
-        log.info("Starting cleanup for: ", path)
+        log.info("Starting cleanup for: ", path, "Dry run: ", dry_run)
         self._root = Directory(path)
         self.refresh_data_structures()
         self._dry_run = dry_run
@@ -47,10 +48,12 @@ class DiskCleanup:
 
         self.refresh_data_structures()
         prev_empty_directory_count = len(self._all_empty_directories)
-        while prev_empty_directory_count != len(self._all_empty_directories):
-            prev_empty_directory_count = len(self._all_empty_directories)
+        while True:
             self.delete_empty_directories()
             self.refresh_data_structures()
+            if prev_empty_directory_count == len(self._all_empty_directories):
+                break
+            prev_empty_directory_count = len(self._all_empty_directories)
 
     def delete_empty_directories(self):
 
@@ -62,7 +65,7 @@ class DiskCleanup:
             log.warning(message)
 
             if not self._dry_run:
-                os.rmdir(directory.path)
+                self._force_delete_directory(directory.path)
 
     def delete_duplicate_files(self):
         log.warning("Deleting duplicate files")
@@ -96,37 +99,43 @@ class DiskCleanup:
                             log.warning(message)
                             if not self._dry_run:
                                 os.remove(duplicate_file.path)
+                                if os.path.exists(duplicate_file.path):
+                                    log.error(
+                                        "Failed to delete duplicate file: ",
+                                        duplicate_file.path,
+                                    )
 
         log.warning("finished deleting duplicate files")
 
     def get_status_report(self):
-        log.warning("==========Dupe Dirs==========")
         for dir_name, dir_list in self._all_directories.items():
             dupe_count = len(dir_list)
             if dupe_count > 1:
                 log.error(
                     "Duplicate directory: ", dir_name, "number of dupes: ", dupe_count
                 )
-        log.warning("==============================")
 
-        log.warning("***********Dupe Files***********")
         for file_name, file_list in self._all_files.items():
             dupe_count = len(file_list)
             if dupe_count > 1:
                 print("Duplicate file: ", file_name, "number of dupes: ", dupe_count)
-        log.warning("********************************")
 
-        log.warning("``````Empty Directories``````")
         log.warning("Empty Directories: ", len(self._all_empty_directories))
         for directory in self._all_empty_directories:
             log.warning("Empty Directory: ", directory.path)
-        log.warning("`````````````````````````````")
 
-        log.warning("``````Symbolic Links``````")
         log.warning("Number of symbolic links: ", len(self._all_symlinks))
         for symlink in self._all_symlinks:
             log.warning("Symlink: ", symlink.path)
         log.warning("`````````````````````````")
+
+    @staticmethod
+    def _force_delete_directory(path):
+        try:
+            shutil.rmtree(path)
+            log.info(f"Successfully deleted: {path}")
+        except Exception as e:
+            log.info(f"Error deleting {path}: {e}")
 
     def __navigate_directory(self, directory):
         if directory.is_empty:
